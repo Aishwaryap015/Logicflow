@@ -1,78 +1,84 @@
 import time
-import random
 
-# Define logic gate functions
-def AND(a, b): return a & b
-def OR(a, b): return a | b
-def XOR(a, b): return a ^ b
-def NAND(a, b): return int(not (a & b))
-def NOR(a, b): return int(not (a | b))
-def XNOR(a, b): return int(not (a ^ b))
+# File to save scores
+SCORE_FILE = "scores.txt"
 
-# Define levels
-levels = [
-    {"gate": "AND", "inputs": (1, 1), "expected": 1},
-    {"gate": "OR", "inputs": (0, 0), "expected": 0},
-    {"gate": "XOR", "inputs": (1, 0), "expected": 1},
-    {"gate": "NAND", "inputs": (1, 1), "expected": 0},
-    {"gate": "NOR", "inputs": (0, 0), "expected": 1},
-    {"gate": "XNOR", "inputs": (1, 1), "expected": 1},
+# Logic puzzles by level
+LEVELS = [
+    {
+        "question": "Level 1: What is the output of 1 AND 0?",
+        "answer": "0"
+    },
+    {
+        "question": "Level 2: What is the output of 1 OR 0?",
+        "answer": "1"
+    },
+    {
+        "question": "Level 3: What is the output of NOT 1?",
+        "answer": "0"
+    },
+    {
+        "question": "Level 4: What is the output of (1 XOR 1)?",
+        "answer": "0"
+    },
+    {
+        "question": "Level 5: What is the output of (1 AND (NOT 0))?",
+        "answer": "1"
+    }
 ]
-score = 0
-history = []
 
-print("🧩 Welcome to Logic Circuit Puzzle Game Simulator!")
-print("📜 Previous Score History:")
-try:
-    with open("score_history.txt", "r") as f:
-        print(f.read())
-except FileNotFoundError:
-    print("No previous history found.\n")
+def save_score(name, score, total_time):
+    with open(SCORE_FILE, "a") as f:
+        f.write(f"{name}: {score} points in {total_time:.2f} seconds\n")
 
-print("Answer the output of the logic gate given the inputs.\n")
-
-for level_num, level in enumerate(levels, start=1):
-    gate = level['gate']
-    a, b = level['inputs']
-    expected = level['expected']
-    print(f"\nLevel {level_num}: {gate} Gate - Inputs: {a}, {b}")
-    
-    start_time = time.time()
-    user_input = input("Your Answer (0 or 1): ")
-    end_time = time.time()
-    
+def view_scores():
     try:
-        user_answer = int(user_input)
-    except ValueError:
-        print("❌ Invalid input. Skipping level.")
-        continue
+        with open(SCORE_FILE, "r") as f:
+            print("\n📜 Score History:")
+            print(f.read())
+    except FileNotFoundError:
+        print("\nNo scores recorded yet.")
 
-    correct = user_answer == expected
-    time_taken = round(end_time - start_time, 2)
+def play_game():
+    name = input("Enter your name: ")
+    print(f"\n🎮 Welcome, {name}! Let's start the logic circuit puzzle game.\n")
 
-    if correct:
-        print("✅ Correct!")
-        score += 1
-    else:
-        print(f"❌ Wrong! Correct Answer was {expected}")
+    score = 0
+    start_time = time.time()
 
-    # Save history
-    history.append({
-        "level": level_num,
-        "gate": gate,
-        "inputs": (a, b),
-        "your_answer": user_answer,
-        "correct": correct,
-        "time": time_taken
-    })
+    for level in LEVELS:
+        print(level["question"])
+        answer = input("Your answer: ").strip()
+        if answer == level["answer"]:
+            print("✅ Correct!\n")
+            score += 1
+        else:
+            print(f"❌ Incorrect! The correct answer was {level['answer']}\n")
 
-print("\n🎉 Game Over!")
-print(f"Your Score: {score} / {len(levels)}")
+    end_time = time.time()
+    total_time = end_time - start_time
 
-# Save to score file
-with open("score_history.txt", "a") as f:
-    f.write(f"\nSession Score: {score} / {len(levels)}\n")
-    for h in history:
-        f.write(f"Level {h['level']} | Gate: {h['gate']} | Inputs: {h['inputs']} | "
-                f"Answer: {h['your_answer']} | Correct: {h['correct']} | Time: {h['time']}s\n")
+    print(f"🏁 Game Over! You scored {score}/{len(LEVELS)} in {total_time:.2f} seconds.")
+    save_score(name, score, total_time)
+
+def main():
+    while True:
+        print("\n🧩 Logicflow: Logic Circuit Puzzle Game Simulator")
+        print("1. Play Game")
+        print("2. View Score History")
+        print("3. Exit")
+        choice = input("Choose an option: ").strip()
+
+        if choice == "1":
+            play_game()
+        elif choice == "2":
+            view_scores()
+        elif choice == "3":
+            print("👋 Goodbye!")
+            break
+        else:
+            print("Invalid choice. Try again.")
+
+if __name__ == "__main__":
+    main()
 
